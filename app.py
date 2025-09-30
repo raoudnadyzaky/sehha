@@ -24,7 +24,7 @@ try:
     vertexai.init(project=os.environ.get("GCP_PROJECT"), location="us-central1")
     
     # استخدام نموذج متوفر بشكل واسع في هذه المنطقة
-    global_model = GenerativeModel("gemini-1.0-pro") 
+    global_model = GenerativeModel("gemini-1.5-flash-001") 
     
     print(f"Vertex AI initialized successfully in us-central1.")
     print(f"Model '{global_model._model_name}' loaded.")
