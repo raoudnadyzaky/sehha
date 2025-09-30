@@ -1,3 +1,4 @@
+google-cloud-aiplatform
 google-generativeai
 Flask
 gunicorn
