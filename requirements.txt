@@ -1,5 +1,4 @@
-google-cloud-aiplatform
-google-generativeai
-Flask
+Flask>=2.0
+Flask-Cors>=3.0
+google-cloud-aiplatform>=1.38.0
 gunicorn
-flask-cors
