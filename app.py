@@ -31,16 +31,16 @@ def initialize_vertex_ai():
     """
     global model, model_initialization_error
     try:
-        # --- التعديل النهائي ---
-        # سنبحث عن المتغير اليدوي أولاً، ثم نلجأ للمتغير التلقائي كخيار بديل
         project_id = os.environ.get("PROJECT_ID") or os.environ.get("GCP_PROJECT")
-        location = "us-central1"
+        
+        # --- هذا هو التصحيح النهائي والحاسم ---
+        # يجب أن تتطابق هذه المنطقة مع منطقة نشر Cloud Run
+        location = "us-west4"
 
         if not project_id:
-            # الآن هذا الخطأ لن يحدث لأننا سنضيف المتغير يدوياً
             raise ValueError("PROJECT_ID or GCP_PROJECT environment variable not set.")
 
-        print(f"Starting Vertex AI initialization for project: {project_id}")
+        print(f"Starting Vertex AI initialization for project: {project_id} in location: {location}")
         vertexai.init(project=project_id, location=location)
 
         loaded_model = GenerativeModel("gemini-1.5-flash-001")
