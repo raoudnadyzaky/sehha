@@ -77,12 +77,9 @@
 
     .feature-box { text-align: center; margin-bottom: 25px; padding: 20px; background-color: #e6f3f3; border: 1px solid var(--dark-green); border-radius: 10px; }
     .feature-box h2 { font-size: 18px; color: var(--dark-green); margin-top: 0; }
-    .feature-box p { font-size: 14px; color: var(--text-muted); }
-    .feature-box textarea, .feature-box input[type="text"] { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Cairo', sans-serif; font-size: 14px; margin-bottom: 15px; box-sizing: border-box; }
     .feature-box .input-wrapper { position: relative; display: flex; gap: 10px; align-items: center; }
-    .feature-box input[type="text"] { flex-grow: 1; margin-bottom: 0; }
+    .feature-box input[type="text"] { flex-grow: 1; margin-bottom: 0; width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Cairo', sans-serif; font-size: 14px; box-sizing: border-box; }
     .feature-box button { background-color: var(--dark-green); color: var(--white); border: none; padding: 10px 20px; font-size: 16px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.3s; margin: 5px 0; line-height: 1.5; }
-    .feature-box button:disabled { background-color: #999; cursor: not-allowed; }
     .feature-box button.go-to-btn { background-color: var(--orange); color: var(--white); }
     #doctor-search-btn {
         background-color: var(--orange);
@@ -92,39 +89,62 @@
         padding: 0;
         font-size: 18px;
     }
-    #analyze-reports-btn {
-        background-color: var(--orange);
-        color: var(--white);
-    }
     .feature-box button:hover:not(:disabled) { opacity: 0.9; transform: translateY(-2px); }
     
-    #recommendation-result-container, #analysis-result-container { margin-top: 15px; }
-    .recommendation-card { background-color: var(--white); border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 15px; text-align: right; transition: all 0.3s ease; }
-    .recommendation-card.primary-recommendation { border: 2px solid var(--dark-green); box-shadow: 0 0 20px var(--primary-glow); }
-    .recommendation-header { 
-        display: flex; 
-        align-items: center; 
-        justify-content: space-between;
-        gap: 15px; 
-        margin-bottom: 10px; 
+    #search-results-container { margin-top: 15px; text-align: right; }
+    #search-results-container .result-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+    #search-results-container .result-item:last-child { border-bottom: none; }
+    .result-info strong { font-size: 1em; color: var(--text-dark); }
+    .result-info .clinic-name { font-size: 0.8em; color: var(--text-muted); }
+    
+    /* --- START: NEW CLINIC NAVIGATION STYLES --- */
+    .clinic-nav-section {
+        text-align: center;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 25px;
     }
-    .recommendation-header .title-content {
+    .clinic-nav-section h2 {
+        font-size: 20px;
+        color: var(--dark-green);
+        margin-top: 0;
+        margin-bottom: 20px;
+    }
+    .clinic-nav-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 15px;
+    }
+    .nav-grid-btn {
         display: flex;
         align-items: center;
         gap: 15px;
-        min-width: 0;
+        padding: 12px 15px;
+        background-color: var(--white);
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-family: 'Cairo', sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-dark);
+        cursor: pointer;
+        text-align: right;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
-    .recommendation-header .icon {
-        width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative; 
-        overflow: hidden; 
+    .nav-grid-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border-color: var(--dark-green);
+        color: var(--dark-green);
+    }
+    .nav-grid-btn .icon {
+        width: 40px;
+        height: 40px;
         flex-shrink: 0;
     }
-    .recommendation-header .icon .svg-icon {
+    .nav-grid-btn .icon .svg-icon {
         width: 100%;
         height: 100%;
         background-color: var(--dark-green);
@@ -134,29 +154,13 @@
         mask-position: center;
         -webkit-mask-size: contain;
         mask-size: contain;
+        transition: background-color 0.3s ease;
     }
-    .recommendation-card.primary-recommendation .recommendation-header .icon { animation: pulse 1.5s infinite ease-in-out; }
-    
-    .recommendation-card.primary-recommendation .recommendation-header .icon::after {
-        content: ''; position: absolute; top: -50%; left: -60%; width: 20%; height: 200%;
-        background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 100%);
-        transform: rotate(35deg); animation: sheen 3s infinite;
+    .nav-grid-btn:hover .icon .svg-icon {
+        background-color: var(--orange);
     }
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-    @keyframes sheen { 0% { left: -60%; } 100% { left: 140%; } }
+    /* --- END: NEW CLINIC NAVIGATION STYLES --- */
 
-    .recommendation-header h3 { margin: 0; font-size: 19px; color: var(--text-dark); }
-    .recommendation-badge { background-color: var(--dark-green); color: white; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 12px; flex-shrink: 0; }
-    .recommendation-reason { font-size: 15px; line-height: 1.8; color: var(--text-muted); margin-bottom: 15px; text-align: justify; }
-    
-    #search-results-container { margin-top: 15px; text-align: right; }
-    #search-results-container .result-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-    #search-results-container .result-item:last-child { border-bottom: none; }
-    .result-info strong { font-size: 1em; color: var(--text-dark); }
-    .result-info .clinic-name { font-size: 0.8em; color: var(--text-muted); }
-    .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--dark-green); border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; margin: 10px auto; display: none; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    
     .section-title { 
         background-color: var(--dark-green); 
         color: var(--white); 
@@ -178,16 +182,16 @@
         align-items: center;
         gap: 15px;
         flex-grow: 1;
-        min-width: 0; /* Prevents flexbox overflow */
+        min-width: 0;
     }
     .section-title .icon { 
-        width: 56px; /* Adjusted size */
-        height: 56px; /* Adjusted size */
+        width: 56px;
+        height: 56px;
         display: flex; 
         align-items: center; 
         justify-content: center; 
         transition: transform 0.4s ease-in-out;
-        flex-shrink: 0; /* Prevents icon from shrinking */
+        flex-shrink: 0;
     }
     .section-title:hover .icon {
         animation: float-and-tilt 0.8s ease-in-out;
@@ -211,7 +215,7 @@
 
     .section-title .title-text { 
         flex-grow: 1;
-        min-width: 0; /* Allows text to shrink and wrap */
+        min-width: 0;
     }
     .section-title .title-text h2 { font-size: 19px; font-weight: 700; margin:0; }
     .section-title .title-text h3 { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 400; opacity: 0.9; margin:0; }
@@ -283,15 +287,15 @@
         <div id="search-results-container" style="display: none;"></div>
     </div>
 
-    <!-- Smart Clinic Recommendation -->
-    <div class="feature-box">
-        <h2>لست متأكدًا أي عيادة تختار؟</h2>
-        <p>صف لنا الأعراض التي تشعر بها، وسيقوم المساعد الذكي باقتراح التخصص الأنسب لك.</p>
-        <textarea id="symptoms-input" placeholder="مثال: أشعر بألم حاد في جنبي الأيمن وحرقان في البول..."></textarea>
-        <button id="get-recommendation-btn">✨ أرشدني للعيادة الصحيحة</button>
-        <div id="loader" class="loader"></div>
-        <div id="recommendation-result-container"></div>
+    <!-- START: NEW CLINIC NAVIGATION SECTION -->
+    <div class="clinic-nav-section" id="clinic-navigation">
+        <h2>اختر العيادة</h2>
+        <div class="clinic-nav-grid" id="clinic-nav-grid-container">
+            <!-- Buttons will be dynamically inserted here by JavaScript -->
+        </div>
     </div>
+    <!-- END: NEW CLINIC NAVIGATION SECTION -->
+
 
     <!-- Clinics Content -->
     <div id="clinics-container"></div>
@@ -327,9 +331,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     
-    // =================================================================================
-    // START: DOCTOR AND CLINIC DATA (CORRECTED AND VERIFIED FROM IMAGE)
-    // =================================================================================
     const allClinicsFullData = [
         { id: "الباطنة-والجهاز-الهضمي-والكبد", doctors: [ { name: "د. عبد الرحيم الطيب (اخصائي)", en_name: "Dr. Abdelrahim Eltayeb", schedule: { "السبت": "7 م", "الأربعاء": "7 م" } } ] },
         { id: "مسالك", doctors: [ { name: "د. احمد شفیع (استشاري)", en_name: "Dr. Ahmed Shafie", schedule: { "السبت": "6 م", "الثلاثاء": "6 م" } } ] },
@@ -342,9 +343,6 @@ document.addEventListener('DOMContentLoaded', function() {
         { id: "جلدية-وليزر", doctors: [ { name: "د. دینا امیر (استشاري)", en_name: "Dr. Dina Amir", schedule: { "السبت": "10 ص - 3 م", "الإثنين": "10 ص - 3 م", "الخميس": "10 ص - 3 م" } }, { name: "د. ياسمين احمد (اخصائي)", en_name: "Dr. Yasmine Ahmed", schedule: { "الخميس": "6 م - 10 م" } } ] }
     ];
 
-    // =================================================================================
-    // START: NEW PROFESSIONAL SVG ICONS (INLINE)
-    // =================================================================================
     const clinicsDisplayData = [
         { id: "الباطنة-والجهاز-الهضمي-والكبد", name: "الباطنة والجهاز الهضمي والكبد", en_name: "Gastroenterology & Hepatology", icon: "gastroenterology-hepatology.svg" },
         { id: "مسالك", name: "المسالك البولية", en_name: "Urology", icon: "urology.svg" },
@@ -359,12 +357,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const fullData = allClinicsFullData.find(c => c.id === clinic.id);
         return { ...clinic, doctors: fullData ? fullData.doctors : [] };
     });
-    // =================================================================================
-    // END OF DATA
-    // =================================================================================
 
     const clinicsContainer = document.getElementById('clinics-container');
-    const clinicMap = new Map(clinicsDisplayData.map(c => [c.id, {name: c.name, icon: c.icon}]));
+    const clinicNavGridContainer = document.getElementById('clinic-nav-grid-container');
+
+    // --- START: NEW FUNCTION TO RENDER NAVIGATION BUTTONS ---
+    function renderClinicNavButtons(data) {
+        clinicNavGridContainer.innerHTML = '';
+        data.forEach(clinic => {
+            const button = document.createElement('button');
+            button.className = 'nav-grid-btn';
+            button.onclick = () => scrollToClinic(clinic.id);
+            
+            const iconHtml = `<div class="icon"><div class="svg-icon" style="-webkit-mask-image: url(./icons/${clinic.icon}); mask-image: url(./icons/${clinic.icon});"></div></div>`;
+            
+            button.innerHTML = `${iconHtml} <span>${clinic.name}</span>`;
+            clinicNavGridContainer.appendChild(button);
+        });
+    }
+    // --- END: NEW FUNCTION ---
 
     function renderClinics(data) {
         clinicsContainer.innerHTML = '';
@@ -373,7 +384,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const section = document.createElement('div');
             section.className = 'clinic-section';
-            section.id = `clinic-${clinic.id}`;
+            section.id = `clinic-${clinic.id}`; // This ID is crucial for scrolling
+            
             const title = document.createElement('div');
             title.className = 'section-title';
             
@@ -388,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <div class="title-nav-buttons">
-                    <button class="nav-btn" data-target="search-box" title="اذهب إلى البحث"><i class="fa-solid fa-arrow-up"></i></button>
+                    <button class="nav-btn" data-target="clinic-navigation" title="اذهب إلى قائمة العيادات"><i class="fa-solid fa-arrow-up"></i></button>
                     <button class="nav-btn" data-target="location-section" title="اذهب إلى الخرائط"><i class="fa-solid fa-arrow-down"></i></button>
                 </div>`;
             section.appendChild(title);
@@ -422,8 +434,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    renderClinics(clinicsDisplayData);
+    // --- RENDER EVERYTHING ---
+    renderClinicNavButtons(clinicsDisplayData); // Render the new navigation buttons
+    renderClinics(clinicsDisplayData); // Render the clinic schedules
 
+    // --- DOCTOR SEARCH FUNCTIONALITY (UNCHANGED) ---
     const searchInput = document.getElementById('doctor-search-input');
     const searchBtn = document.getElementById('doctor-search-btn');
     const searchResultsContainer = document.getElementById('search-results-container');
@@ -487,6 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // --- GLOBAL SCROLL FUNCTION (USED BY NEW BUTTONS) ---
     window.scrollToClinic = (clinicId) => {
         const clinicSection = document.getElementById(`clinic-${clinicId}`);
         if (clinicSection) {
@@ -495,94 +511,6 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error(`Clinic section with id 'clinic-${clinicId}' not found.`);
         }
     };
-    
-    const RECOMMEND_API = '/api/recommend';
-
-    const getRecommendationBtn = document.getElementById('get-recommendation-btn');
-    const symptomsInput = document.getElementById('symptoms-input');
-    const recommendationResultContainer = document.getElementById('recommendation-result-container');
-    const loader = document.getElementById('loader');
-    
-    getRecommendationBtn.addEventListener('click', async () => {
-        const symptomsText = symptomsInput.value.trim();
-        if (!symptomsText) {
-            alert('من فضلك، قم بوصف الأعراض التي تشعر بها.');
-            return;
-        }
-        loader.style.display = 'block';
-        recommendationResultContainer.innerHTML = '';
-        getRecommendationBtn.disabled = true;
-        try {
-            const response = await fetch(RECOMMEND_API, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ symptoms: symptomsText })
-            });
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({error: "حدث خطأ في الاتصال بالخادم."}));
-                throw new Error(errorData.error);
-            }
-            const data = await response.json();
-            if (data.recommendations && data.recommendations.length > 0) {
-                displayRecommendations(data.recommendations);
-            } else {
-                 displayFallback();
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            displayFallback(`عفواً، حدث خطأ تقني: ${error.message}`);
-        } finally {
-            loader.style.display = 'none';
-            getRecommendationBtn.disabled = false;
-        }
-    });
-    
-    function displayRecommendations(recommendations) {
-        recommendationResultContainer.innerHTML = '';
-        recommendations.forEach((rec, index) => {
-            const clinicInfo = clinicMap.get(rec.id);
-            if (!clinicInfo) return;
-            const isPrimary = index === 0;
-            const card = document.createElement('div');
-            card.className = `recommendation-card ${isPrimary ? 'primary-recommendation' : ''}`;
-            
-            const iconHtml = `<div class="icon"><div class="svg-icon" style="-webkit-mask-image: url(./icons/${clinicInfo.icon}); mask-image: url(./icons/${clinicInfo.icon});"></div></div>`;
-
-            card.innerHTML = `
-                <div class="recommendation-header">
-                    <div class="title-content">
-                        ${iconHtml}
-                        <h3>${clinicInfo.name}</h3>
-                    </div>
-                    ${isPrimary ? '<span class="recommendation-badge">الترشيح الأنسب</span>' : '<span class="recommendation-badge" style="background-color: #6c757d;">ترشيح بديل</span>'}
-                </div>
-                <p class="recommendation-reason">${rec.reason}</p>
-                <button class="go-to-btn" onclick="scrollToClinic('${rec.id}')">اذهب إلى عيادة ${clinicInfo.name} <i class="fa-solid fa-arrow-down"></i></button>
-            `;
-            recommendationResultContainer.appendChild(card);
-        });
-    }
-
-    function displayFallback(message = null) {
-        const fallbackMessage = message || 'لم نتمكن من تحديد تخصص دقيق. نقترح عليك التوجه لعيادة <strong>الباطنة العامة</strong> كنقطة بداية.';
-        const clinicInfo = clinicMap.get("باطنة-عامة");
-        
-        const iconHtml = `<div class="icon"><div class="svg-icon" style="-webkit-mask-image: url(./icons/${clinicInfo.icon}); mask-image: url(./icons/${clinicInfo.icon});"></div></div>`;
-
-        recommendationResultContainer.innerHTML = `
-            <div class="recommendation-card primary-recommendation">
-                 <div class="recommendation-header">
-                    <div class="title-content">
-                        ${iconHtml}
-                        <h3>الباطنة العامة</h3>
-                    </div>
-                    <span class="recommendation-badge">الترشيح المبدئي</span>
-                </div>
-                <p class="recommendation-reason">${fallbackMessage}</p>
-                <button class="go-to-btn" onclick="scrollToClinic('باطنة-عامة')">اذهب إلى عيادة الباطنة العامة <i class="fa-solid fa-arrow-down"></i></button>
-            </div>
-        `;
-    }
 });
 </script>
 
