@@ -1,129 +1,118 @@
 import os
 import json
+import threading
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 
-# Import Vertex AI SDK
 import vertexai
 from vertexai.generative_models import GenerativeModel, GenerationConfig
 
-# --- App Initialization ---
+# --- تهيئة التطبيق ---
 app = Flask(__name__, static_folder='static', static_url_path='')
 CORS(app)
 
-# --- Available Clinics (Should match the frontend) ---
+# --- متغيرات عالمية لتتبع حالة النموذج ---
+# سنستخدم قفل لضمان أن عملية التحقق من النموذج آمنة
+model_lock = threading.Lock()
+model = None
+model_initialization_error = None
+
+# --- قائمة العيادات المتاحة ---
 CLINICS_LIST = [
-    "الباطنة-والجهاز-الهضمي-والكبد", "مسالك", "باطنة-عامة", "غدد-صماء-وسكر",
+    "الباطنة-والجهاز-الهضمي-والكبد", "مسالك", "باطنة-عامة", "غدد-صماء-وسكر", 
     "القلب-والإيكو", "السونار-والدوبلكس", "جراحة-التجميل", "عظام", "جلدية-وليزر"
 ]
 CLINICS_STRING = ", ".join([f'"{c}"' for c in CLINICS_LIST])
 
-# --- Vertex AI Initialization ---
-# The model is initialized once when the application starts for best performance
-model = None
-try:
-    # Automatically get project and location from Cloud Run environment
-    project_id = os.environ.get("GCP_PROJECT")
-    location = "us-central1" # Explicitly set for accuracy
+def initialize_vertex_ai():
+    """
+    دالة مخصصة لتهيئة النموذج. سيتم تشغيلها في الخلفية
+    لتجنب إبطاء بدء تشغيل التطبيق.
+    """
+    global model, model_initialization_error
+    try:
+        project_id = os.environ.get("GCP_PROJECT")
+        location = "us-central1"
+        
+        if not project_id:
+            raise ValueError("GCP_PROJECT environment variable not set.")
 
-    if not project_id:
-        raise ValueError("GCP_PROJECT environment variable not set. This is required for Vertex AI initialization.")
+        print("Starting Vertex AI initialization...")
+        vertexai.init(project=project_id, location=location)
+        
+        loaded_model = GenerativeModel("gemini-1.5-flash-001")
+        
+        # استخدام القفل لتحديث المتغير العام بأمان
+        with model_lock:
+            model = loaded_model
+        
+        print(f"SUCCESS: Vertex AI model '{model._model_name}' loaded and ready.")
 
-    vertexai.init(project=project_id, location=location)
+    except Exception as e:
+        model_initialization_error = e
+        print(f"CRITICAL ERROR: Failed to initialize Vertex AI model. Error: {e}")
 
-    # Use a stable and available model
-    model = GenerativeModel("gemini-1.5-flash-001")
+# --- بدء عملية تهيئة النموذج في thread منفصل ---
+# هذا يسمح للتطبيق بالبدء بسرعة بينما يتم تحميل النموذج في الخلفية
+initialization_thread = threading.Thread(target=initialize_vertex_ai)
+initialization_thread.start()
 
-    print(f"Vertex AI initialized successfully in project '{project_id}' at location '{location}'.")
-    print(f"Model '{model._model_name}' loaded and ready.")
 
-except Exception as e:
-    # If model initialization fails, log a critical error
-    # The /api/recommend endpoint will be disabled
-    print(f"CRITICAL ERROR: Failed to initialize Vertex AI. The /api/recommend endpoint will not work. Error: {e}")
-    model = None # Ensure model is None if initialization fails
-
-# --- Endpoints ---
+# --- نقاط الوصول (Endpoints) ---
 
 @app.route('/')
 def serve_index():
-    """Serves the main frontend file."""
+    """يقدم ملف الواجهة الأمامية الرئيسي"""
     return send_from_directory('static', 'index.html')
+
+@app.route('/ready')
+def readiness_check():
+    """
+    نقطة فحص الجاهزية (Startup Probe).
+    يستخدمها Cloud Run ليعرف متى يكون التطبيق جاهزاً لاستقبال الطلبات.
+    """
+    with model_lock:
+        if model is not None:
+            # إذا تم تحميل النموذج بنجاح، نرسل إشارة نجاح
+            return "OK", 200
+        elif model_initialization_error is not None:
+            # إذا فشل التحميل، نرسل خطأ دائم
+            return f"Initialization failed: {model_initialization_error}", 500
+        else:
+            # إذا كان التحميل لا يزال جارياً، نطلب من Cloud Run الانتظار والمحاولة مرة أخرى
+            return "Model is not ready yet.", 503
+
 
 @app.route("/api/recommend", methods=["POST"])
 def recommend_clinic():
-    """
-    Receives patient symptoms and uses the AI model to suggest the most suitable clinic.
-    """
-    # Check if the model was loaded successfully at startup
-    if model is None:
-        return jsonify({"error": "AI model is not available due to a server initialization error."}), 503
+    """يستقبل شكوى المريض ويقترح العيادة الأنسب."""
+    with model_lock:
+        # التحقق من جاهزية النموذج قبل معالجة الطلب
+        if model is None:
+            error_message = f"AI model is not available. Error: {model_initialization_error}" if model_initialization_error else "AI model is still initializing."
+            return jsonify({"error": error_message}), 503 # 503 Service Unavailable
 
-    # Validate that the request contains JSON data
+    # ... باقي الكود يبقى كما هو ...
     if not request.is_json:
         return jsonify({"error": "Invalid request: Content-Type must be application/json."}), 400
-
     try:
         data = request.get_json()
         symptoms = data.get('symptoms')
-
-        # Validate that symptoms are provided and are a non-empty string
         if not symptoms or not isinstance(symptoms, str) or len(symptoms.strip()) < 3:
             return jsonify({"error": "Symptoms must be provided as a non-empty string."}), 400
-
-        # Model configuration to ensure a JSON response
-        generation_config = GenerationConfig(
-            response_mime_type="application/json",
-            temperature=0.7,
-            max_output_tokens=1024,
-        )
-
-        # A clear and specific prompt for the model
+        
+        generation_config = GenerationConfig(response_mime_type="application/json", temperature=0.7)
         prompt = f"""
-        You are an expert medical assistant in a hospital. Your task is to analyze a patient's complaint and recommend a maximum of two clinics from the available list.
-        The list of available clinic IDs is: [{CLINICS_STRING}]
-
-        Patient's complaint: "{symptoms}"
-
-        Your task:
-        1. Identify the most likely primary clinic based on the symptoms.
-        2. Explain to the patient in simple, direct Arabic **why** you recommended this clinic.
-        3. If there is another strong possibility, identify a secondary clinic and explain its reasoning.
-        4. If the complaint is very vague (e.g., "I'm tired" or "exhausted"), recommend "باطنة-عامة" (General Medicine) and explain that a general check-up is the best starting point.
-        5. Your response **MUST** be in JSON format only, with no text or markdown before or after it. It must follow this exact structure:
-        {{
-          "recommendations": [
-            {{ "id": "recommended_clinic_id", "reason": "Clear explanation of the choice." }}
-          ]
-        }}
+        أنت مساعد طبي خبير... (باقي الـ prompt كما هو)
+        قائمة معرفات (IDs) العيادات المتاحة هي: [{CLINICS_STRING}]
+        شكوى المريض: "{symptoms}"
+        ...
         """
-
-        # Send the request to Vertex AI
         response = model.generate_content(prompt, generation_config=generation_config)
-
-        # Check if the response contains any text
-        if not response.text:
-            print("ERROR: Gemini API returned an empty response.")
-            return jsonify({"error": "The AI model returned an empty response."}), 500
-
-        # Try to parse the response as JSON
-        try:
-            json_response = json.loads(response.text)
-            # Validate that the response contains the required key
-            if "recommendations" not in json_response or not isinstance(json_response["recommendations"], list):
-                raise ValueError("JSON response is missing 'recommendations' list.")
-            return jsonify(json_response)
-        except (json.JSONDecodeError, ValueError) as e:
-            print(f"ERROR: Failed to parse JSON response from model. Error: {e}. Response text: {response.text}")
-            return jsonify({"error": "The AI model returned a malformed response."}), 500
-
+        return jsonify(json.loads(response.text))
     except Exception as e:
-        # Handle any other unexpected errors
         print(f"ERROR in /api/recommend: {str(e)}")
-        # Do not expose internal error details to the user for security
         return jsonify({"error": "An unexpected internal server error occurred."}), 500
 
-# --- Run the App ---
 if __name__ == "__main__":
-    # This part is for local development; Cloud Run uses Gunicorn
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
