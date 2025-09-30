@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>جدول العيادات الخارجية - Sehha Clinics</title>
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --dark-green: #06643a;
+        --orange: #e86c24;
+        --white: #ffffff;
+        --text-dark: #212529;
+        --text-muted: #6c757d;
+        --danger-red: #dc3545;
+        --primary-glow: rgba(6, 100, 58, 0.4);
+        --orange-glow: rgba(232, 108, 36, 0.7);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+        font-family: 'Cairo', sans-serif;
+        background-color: #f0f2f5;
+        margin: 0;
+        padding: 20px 15px;
+        display: flex;
+        justify-content: center;
+        color: var(--text-dark);
+    }
+    .page {
+        background: var(--white);
+        width: 100%;
+        max-width: 900px;
+        padding: 25px;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+        border-radius: 15px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    .logo-container { text-align: center; margin: -25px -25px 25px -25px; }
+    .logo-image { width: 100%; height: auto; }
+    
+    .info-professional {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+        text-align: right;
+    }
+    .info-professional h1 {
+        font-size: 20px;
+        margin-top: 0;
+        margin-bottom: 5px;
+        color: var(--dark-green);
+    }
+    .info-professional .en-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        color: var(--text-muted);
+        margin-bottom: 20px;
+        display: block;
+    }
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+    }
+    .info-item { display: flex; align-items: center; gap: 15px; line-height: 1.6; }
+    .info-item i { font-size: 22px; color: var(--orange); width: 25px; text-align: center; }
+    .info-item-text strong { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1.1em; }
+    .info-item-text .en { font-family: 'Poppins', sans-serif; font-size: 0.8em; color: var(--text-muted); display: block; }
+
+    .feature-box { text-align: center; margin-bottom: 25px; padding: 20px; background-color: #e6f3f3; border: 1px solid var(--dark-green); border-radius: 10px; }
+    .feature-box h2 { font-size: 18px; color: var(--dark-green); margin-top: 0; }
+    .feature-box p { font-size: 14px; color: var(--text-muted); }
+    .feature-box textarea, .feature-box input[type="text"] { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Cairo', sans-serif; font-size: 14px; margin-bottom: 15px; box-sizing: border-box; }
+    .feature-box .input-wrapper { position: relative; display: flex; gap: 10px; align-items: center; }
+    .feature-box input[type="text"] { flex-grow: 1; margin-bottom: 0; }
+    .feature-box button { background-color: var(--dark-green); color: var(--white); border: none; padding: 10px 20px; font-size: 16px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.3s; margin: 5px 0; line-height: 1.5; }
+    .feature-box button:disabled { background-color: #999; cursor: not-allowed; }
+    .feature-box button.go-to-btn { background-color: var(--orange); color: var(--white); }
+    #doctor-search-btn {
+        background-color: var(--orange);
+        color: var(--white);
+        width: 45px;
+        height: 45px;
+        padding: 0;
+        font-size: 18px;
+    }
+    #analyze-reports-btn {
+        background-color: var(--orange);
+        color: var(--white);
+    }
+    .feature-box button:hover:not(:disabled) { opacity: 0.9; transform: translateY(-2px); }
+    
+    #recommendation-result-container, #analysis-result-container { margin-top: 15px; }
+    .recommendation-card { background-color: var(--white); border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 15px; text-align: right; transition: all 0.3s ease; }
+    .recommendation-card.primary-recommendation { border: 2px solid var(--dark-green); box-shadow: 0 0 20px var(--primary-glow); }
+    .recommendation-header { 
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between;
+        gap: 15px; 
+        margin-bottom: 10px; 
+    }
+    .recommendation-header .title-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        min-width: 0;
+    }
+    .recommendation-header .icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative; 
+        overflow: hidden; 
+        flex-shrink: 0;
+    }
+    .recommendation-header .icon .svg-icon {
+        width: 100%;
+        height: 100%;
+        background-color: var(--dark-green);
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+    }
+    .recommendation-card.primary-recommendation .recommendation-header .icon { animation: pulse 1.5s infinite ease-in-out; }
+    
+    .recommendation-card.primary-recommendation .recommendation-header .icon::after {
+        content: ''; position: absolute; top: -50%; left: -60%; width: 20%; height: 200%;
+        background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 100%);
+        transform: rotate(35deg); animation: sheen 3s infinite;
+    }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+    @keyframes sheen { 0% { left: -60%; } 100% { left: 140%; } }
+
+    .recommendation-header h3 { margin: 0; font-size: 19px; color: var(--text-dark); }
+    .recommendation-badge { background-color: var(--dark-green); color: white; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 12px; flex-shrink: 0; }
+    .recommendation-reason { font-size: 15px; line-height: 1.8; color: var(--text-muted); margin-bottom: 15px; text-align: justify; }
+    
+    #search-results-container { margin-top: 15px; text-align: right; }
+    #search-results-container .result-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+    #search-results-container .result-item:last-child { border-bottom: none; }
+    .result-info strong { font-size: 1em; color: var(--text-dark); }
+    .result-info .clinic-name { font-size: 0.8em; color: var(--text-muted); }
+    .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--dark-green); border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; margin: 10px auto; display: none; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    .section-title { 
+        background-color: var(--dark-green); 
+        color: var(--white); 
+        padding: 12px 20px; 
+        border-radius: 10px; 
+        margin-top: 35px; 
+        margin-bottom: 20px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between;
+        transition: all 0.3s ease-in-out;
+    }
+    .section-title:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+    .title-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-grow: 1;
+        min-width: 0; /* Prevents flexbox overflow */
+    }
+    .section-title .icon { 
+        width: 56px; /* Adjusted size */
+        height: 56px; /* Adjusted size */
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        transition: transform 0.4s ease-in-out;
+        flex-shrink: 0; /* Prevents icon from shrinking */
+    }
+    .section-title:hover .icon {
+        animation: float-and-tilt 0.8s ease-in-out;
+    }
+    @keyframes float-and-tilt {
+        0% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-8px) rotate(5deg); }
+        100% { transform: translateY(0) rotate(0deg); }
+    }
+    .section-title .icon .svg-icon { 
+        width: 100%; 
+        height: 100%; 
+        background-color: var(--white);
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+    }
+
+    .section-title .title-text { 
+        flex-grow: 1;
+        min-width: 0; /* Allows text to shrink and wrap */
+    }
+    .section-title .title-text h2 { font-size: 19px; font-weight: 700; margin:0; }
+    .section-title .title-text h3 { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 400; opacity: 0.9; margin:0; }
+    .title-nav-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+    .nav-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; transition: background-color 0.3s; font-size: 14px; }
+    .nav-btn:hover { background: rgba(255,255,255,0.4); }
+    
+    .doctor-card { display: block; margin-bottom: 15px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #eee; transition: all 0.3s; }
+    .doctor-card.highlight { box-shadow: 0 0 15px 5px var(--orange-glow); transform: scale(1.02); border-color: var(--orange); }
+    .doctor-card .doctor-name { background-color: #f8f9fa; text-align: center; padding: 12px; font-size: 16px; font-weight: 600; }
+    .doctor-card .appointment { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; font-size: 14px; border-bottom: 1px solid #eee; }
+    .doctor-card .appointment:last-child { border-bottom: none; }
+    .doctor-card .day { font-weight: bold; color: var(--dark-green); text-align: right; }
+    .doctor-card .day .en, .doctor-card .doctor-name .en { font-family: 'Poppins', sans-serif; font-size: 0.85em; font-weight: 400; margin-top: 2px; color: #555;}
+    .doctor-card .time { font-weight: 600; font-family: 'Poppins', sans-serif; font-size: 15px; background-color: var(--orange); color: var(--white); padding: 3px 10px; border-radius: 5px; }
+    .en { font-family: 'Poppins', sans-serif; font-size: 0.9em; font-weight: 400; margin-top: 2px; }
+    .footer-image-container { margin: 40px -25px -25px -25px; }
+    .footer-image { width: 100%; height: auto; display: block; }
+    
+    .location-section { margin-top: 40px; text-align: center; }
+    .location-section h2 { font-size: 20px; color: var(--dark-green); margin-bottom: 20px; }
+    .location-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+    .location-card h3 { font-size: 18px; color: var(--text-dark); margin-bottom: 10px; }
+    .location-map {
+        position: relative; width: 100%; height: 250px; border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden;
+    }
+    .location-map iframe { width: 100%; height: 100%; border: 0; }
+    .map-link-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; }
+    .location-address { margin-top: 15px; font-size: 16px; color: var(--text-muted); line-height: 1.7; }
+
+</style>
+</head>
+<body>
+
+<div class="page" id="page-top">
+    <div class="logo-container"><img src="https://i.ibb.co/jkpz36nT/Cover-LOGO.png" alt="Cover-LOGO" class="logo-image"></div>
+    
+    <div class="info-professional">
+        <h1>نتشرف باستقبال حضراتكم بعياداتنا</h1>
+        <span class="en-title">We are honored to welcome you at our Clinics</span>
+        <div class="info-grid">
+            <div class="info-item">
+                <i class="fa-solid fa-phone"></i>
+                <div class="info-item-text"> للحجز والاستفسار: <strong>16897</strong> <span class="en">For booking & inquiries</span> </div>
+            </div>
+            <div class="info-item">
+                <i class="fa-solid fa-map-marker-alt"></i>
+                <div class="info-item-text"> <strong>مصر الجديدة:</strong> 6 شــارع الــنــزهــة - أرض الــــجـــــولــــف <span class="en"><strong>Heliopolis:</strong> 6 El Nozha St., Ard El Golf</span> </div>
+            </div>
+            <div class="info-item">
+                <i class="fa-solid fa-map-marker-alt"></i>
+                <div class="info-item-text"> <strong>الـــمـــعــــادى:</strong> 36 أ شارع 206 دجلة المعادي <span class="en"><strong>Maadi:</strong> 36A, Street 206, Degla Maadi</span> </div>
+            </div>
+            <div class="info-item">
+                <i class="fa-solid fa-receipt"></i>
+                <div class="info-item-text"> الرقم الضريبي: <strong>376-999-748</strong> <span class="en">Tax ID: 748-999-748</span> </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search by Doctor Name -->
+    <div class="feature-box" id="search-box">
+        <h2>البحث باسم الطبيب</h2>
+        <div class="input-wrapper">
+            <input type="text" id="doctor-search-input" placeholder="اكتب اسم الطبيب هنا...">
+            <button id="doctor-search-btn" title="ابحث"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+        <div id="search-results-container" style="display: none;"></div>
+    </div>
+
+    <!-- Smart Clinic Recommendation -->
+    <div class="feature-box">
+        <h2>لست متأكدًا أي عيادة تختار؟</h2>
+        <p>صف لنا الأعراض التي تشعر بها، وسيقوم المساعد الذكي باقتراح التخصص الأنسب لك.</p>
+        <textarea id="symptoms-input" placeholder="مثال: أشعر بألم حاد في جنبي الأيمن وحرقان في البول..."></textarea>
+        <button id="get-recommendation-btn">✨ أرشدني للعيادة الصحيحة</button>
+        <div id="loader" class="loader"></div>
+        <div id="recommendation-result-container"></div>
+    </div>
+
+    <!-- Clinics Content -->
+    <div id="clinics-container"></div>
+
+    <!-- Map Section -->
+    <div class="location-section" id="location-section">
+        <h2>مواقعنا على الخريطة</h2>
+        <div class="location-grid">
+            <div class="location-card">
+                <h3>فرع مصر الجديدة</h3>
+                <div class="location-map">
+                    <a href="https://www.google.com/maps/dir//6+El-Nozha,+Almazah,+Heliopolis,+Cairo+Governorate+4451347/@30.0791851,31.2570794,12z/data=!4m8!4m7!1m0!1m5!1m1!1s0x14583e1a7ea03cf7:0xadcd2b0191351d9e!2m2!1d31.3395729!2d30.0792003?entry=ttu" target="_blank" class="map-link-overlay" title="اضغط لفتح خرائط جوجل وبدء الملاحة"></a>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3452.523861930596!2d31.33699831511598!3d30.07919998187118!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14583e1a7ea03cf7%3A0xadcd2b0191351d9e!2sSehha%20Clinics!5e0!3m2!1sen!2seg" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+                <p class="location-address">6 شــارع الــنــزهــة بــجــوار الـرق-ابـة الإداريــة، أرض الــــجـــــولــــف</p>
+            </div>
+            <div class="location-card">
+                <h3>فرع المعادي</h3>
+                <div class="location-map">
+                    <a href="https://www.google.com/maps/dir//El-Basatin+Sharkeya,+El+Basatin,+Cairo+Governorate+4236040/@29.9835368,31.2376917,12z/data=!4m8!4m7!1m0!1m5!1m1!1s0x145839e5634de023:0xad472aeeb2ab3b93!2m2!1d31.3200931!2d29.9835624?entry=ttu" target="_blank" class="map-link-overlay" title="اضغط لفتح خرائط جوجل وبدء الملاحة"></a>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3456.281510685981!2d31.31751811511345!3d29.97134498190888!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x145839e5634de023%3A0xad472aeeb2ab3b93!2sSehha%20Clinics!5e0!3m2!1sen!2seg" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+                <p class="location-address">36 أ شارع 206 دجلة المعادي، بجوار جراند مول، الدور الأرضي</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-image-container">
+        <img src="https://i.ibb.co/0VBdKJk3/4566786.png" alt="Footer Banner" class="footer-image">
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // =================================================================================
+    // START: DOCTOR AND CLINIC DATA (CORRECTED AND VERIFIED FROM IMAGE)
+    // =================================================================================
+    const allClinicsFullData = [
+        { id: "الباطنة-والجهاز-الهضمي-والكبد", doctors: [ { name: "د. عبد الرحيم الطيب (اخصائي)", en_name: "Dr. Abdelrahim Eltayeb", schedule: { "السبت": "7 م", "الأربعاء": "7 م" } } ] },
+        { id: "مسالك", doctors: [ { name: "د. احمد شفیع (استشاري)", en_name: "Dr. Ahmed Shafie", schedule: { "السبت": "6 م", "الثلاثاء": "6 م" } } ] },
+        { id: "باطنة-عامة", doctors: [ { name: "د. ندين (اخصائي)", en_name: "Dr. Nadine", schedule: { "السبت": "10 ص - 5 م", "الأحد": "10 ص - 5 م" } }, { name: "د. انجى يسرى (اخصائي)", en_name: "Dr. Engy Yousry", schedule: { "الإثنين": "10 ص - 5 م", "الثلاثاء": "10 ص - 5 م", "الخميس": "10 ص - 5 م" } }, { name: "د. هاله (اخصائي)", en_name: "Dr. Hala", schedule: { "الأربعاء": "10 ص - 5 م" } } ] },
+        { id: "غدد-صماء-وسكر", doctors: [ { name: "د. احمد سامی (استشاري)", en_name: "Dr. Ahmed Samy", schedule: { "السبت": "8 م", "الثلاثاء": "8 م" } } ] },
+        { id: "القلب-والإيكو", doctors: [ { name: "د. محمود سعید (اخصائي)", en_name: "Dr. Mahmoud Saeed", schedule: { "السبت": "10 ص - 7 م" } }, { name: "د. وسیم (اخصائي)", en_name: "Dr. Waseem", schedule: { "الإثنين": "10 ص - 3 م" } }, { name: "د. غاده عادل (استشاري)", en_name: "Dr. Ghada Adel", schedule: { "الثلاثاء": "10 ص - 7 م", "الأربعاء": "10 ص - 7 م", "الخميس": "10 ص - 3 م" } }, { name: "د. محمد نبیل (استشاري)", en_name: "Dr. Mohamed Nabil", schedule: { "الإثنين": "5 م - 8 م", "الخميس": "5 م - 8 م" } } ] },
+        { id: "السونار-والدوبلكس", doctors: [ { name: "د. أحمد عثمان (اخصائي)", en_name: "Dr. Ahmed Othman", schedule: { "السبت": "1 م", "الأربعاء": "1 م" } }, { name: "د. مصطفى عثمان (اخصائي)", en_name: "Dr. Mostafa Othman", schedule: { "الأحد": "1 م" } }, { name: "د. کریم فاروق (اخصائي)", en_name: "Dr. Karim Farouk", schedule: { "الإثنين": "1 م", "الخميس": "1 م" } }, { name: "د. إسلام مصطفى (اخصائي)", en_name: "Dr. Islam Mostafa", schedule: { "الثلاثاء": "1 م" } } ] },
+        { id: "جراحة-التجميل", doctors: [ { name: "د. يحيى خالد (اخصائي)", en_name: "Dr. Yehia Khaled", schedule: { "الأحد": "3 م", "الثلاثاء": "3 م" } } ] },
+        { id: "عظام", doctors: [ { name: "د. محمد صلاح (استشاري)", en_name: "Dr. Mohamed Salah", schedule: { "الإثنين": "7 م", "الأربعاء": "7 م" } }, { name: "د. هديل العجيلي (استشاري)", en_name: "Dr. Hadeel Al-Ajili", schedule: { "الثلاثاء": "7 م", "الأربعاء": "7 م" } } ] },
+        { id: "جلدية-وليزر", doctors: [ { name: "د. دینا امیر (استشاري)", en_name: "Dr. Dina Amir", schedule: { "السبت": "10 ص - 3 م", "الإثنين": "10 ص - 3 م", "الخميس": "10 ص - 3 م" } }, { name: "د. ياسمين احمد (اخصائي)", en_name: "Dr. Yasmine Ahmed", schedule: { "الخميس": "6 م - 10 م" } } ] }
+    ];
+
+    // =================================================================================
+    // START: NEW PROFESSIONAL SVG ICONS (INLINE)
+    // =================================================================================
+    const clinicsDisplayData = [
+        { id: "الباطنة-والجهاز-الهضمي-والكبد", name: "الباطنة والجهاز الهضمي والكبد", en_name: "Gastroenterology & Hepatology", icon: "gastroenterology-hepatology.svg" },
+        { id: "مسالك", name: "المسالك البولية", en_name: "Urology", icon: "urology.svg" },
+        { id: "باطنة-عامة", name: "الباطنة العامة", en_name: "General Medicine", icon: "general-medicine.svg" },
+        { id: "غدد-صماء-وسكر", name: "غدد صماء وسكر", en_name: "Endocrinology & Diabetes", icon: "endocrinology-diabetes.svg" },
+        { id: "القلب-والإيكو", name: "القلب والإيكو", en_name: "Cardiology & Echocardiography", icon: "internal-medicine-cardiology.svg" },
+        { id: "السونار-والدوبلكس", name: "السونار والدوبلكس", en_name: "Ultrasound & Doppler", icon: "ultrasound-doppler.svg" },
+        { id: "جراحة-التجميل", name: "جراحة التجميل", en_name: "Plastic Surgery", icon: "plastic-surgery.svg" },
+        { id: "عظام", name: "العظام", en_name: "Orthopedics", icon: "orthopedics.svg" },
+        { id: "جلدية-وليزر", name: "الجلدية والليزر", en_name: "Dermatology & Laser", icon: "dermatology-laser.svg" }
+    ].map(clinic => {
+        const fullData = allClinicsFullData.find(c => c.id === clinic.id);
+        return { ...clinic, doctors: fullData ? fullData.doctors : [] };
+    });
+    // =================================================================================
+    // END OF DATA
+    // =================================================================================
+
+    const clinicsContainer = document.getElementById('clinics-container');
+    const clinicMap = new Map(clinicsDisplayData.map(c => [c.id, {name: c.name, icon: c.icon}]));
+
+    function renderClinics(data) {
+        clinicsContainer.innerHTML = '';
+        data.forEach(clinic => {
+            if (!clinic.doctors || clinic.doctors.length === 0) return;
+            
+            const section = document.createElement('div');
+            section.className = 'clinic-section';
+            section.id = `clinic-${clinic.id}`;
+            const title = document.createElement('div');
+            title.className = 'section-title';
+            
+            const iconHtml = `<div class="icon"><div class="svg-icon" style="-webkit-mask-image: url(./icons/${clinic.icon}); mask-image: url(./icons/${clinic.icon});"></div></div>`;
+            
+            title.innerHTML = `
+                <div class="title-content">
+                    ${iconHtml}
+                    <div class="title-text">
+                        <h2>${clinic.name}</h2>
+                        <h3 class="en">${clinic.en_name}</h3>
+                    </div>
+                </div>
+                <div class="title-nav-buttons">
+                    <button class="nav-btn" data-target="search-box" title="اذهب إلى البحث"><i class="fa-solid fa-arrow-up"></i></button>
+                    <button class="nav-btn" data-target="location-section" title="اذهب إلى الخرائط"><i class="fa-solid fa-arrow-down"></i></button>
+                </div>`;
+            section.appendChild(title);
+            
+            clinic.doctors.forEach((doctor, index) => {
+                const card = document.createElement('div');
+                card.className = 'doctor-card';
+                card.id = `doc-${clinic.id}-${index}`;
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'doctor-name';
+                nameDiv.innerHTML = `<div>${doctor.name}</div><div class="en">${doctor.en_name}</div>`;
+                card.appendChild(nameDiv);
+                Object.keys(doctor.schedule).forEach(day => {
+                    const appointmentDiv = document.createElement('div');
+                    appointmentDiv.className = 'appointment';
+                    appointmentDiv.innerHTML = `
+                        <span class="day">${day}</span>
+                        <span class="time">${doctor.schedule[day]}</span>`;
+                    card.appendChild(appointmentDiv);
+                });
+                section.appendChild(card);
+            });
+            clinicsContainer.appendChild(section);
+        });
+        
+        document.querySelectorAll('.nav-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        });
+    }
+
+    renderClinics(clinicsDisplayData);
+
+    const searchInput = document.getElementById('doctor-search-input');
+    const searchBtn = document.getElementById('doctor-search-btn');
+    const searchResultsContainer = document.getElementById('search-results-container');
+    
+    function performSearch() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        searchResultsContainer.innerHTML = '';
+        document.querySelectorAll('.doctor-card.highlight').forEach(c => c.classList.remove('highlight'));
+        if (!searchTerm) {
+            searchResultsContainer.style.display = 'none';
+            return;
+        }
+        const foundDoctors = [];
+        clinicsDisplayData.forEach(clinic => {
+            if (clinic.doctors) {
+                clinic.doctors.forEach((doctor, index) => {
+                    if (doctor.name.toLowerCase().includes(searchTerm) || doctor.en_name.toLowerCase().includes(searchTerm)) {
+                        foundDoctors.push({
+                            ...doctor,
+                            clinicName: clinic.name,
+                            cardId: `doc-${clinic.id}-${index}`
+                        });
+                    }
+                });
+            }
+        });
+        
+        searchResultsContainer.style.display = 'block';
+        if (foundDoctors.length > 0) {
+            foundDoctors.forEach(doctor => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <div class="result-info">
+                        <strong>${doctor.name}</strong>
+                        <div class="clinic-name">${doctor.clinicName}</div>
+                    </div>
+                    <button class="go-to-btn">اذهب إلى الطبيب</button>`;
+                resultItem.querySelector('button').addEventListener('click', () => {
+                    scrollToAndHighlight(doctor.cardId);
+                });
+                searchResultsContainer.appendChild(resultItem);
+            });
+        } else {
+            searchResultsContainer.innerHTML = `<div class="result-item"><p>لا توجد نتائج مطابقة لبحثك.</p></div>`;
+        }
+    }
+    
+    searchBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') performSearch();
+    });
+
+    function scrollToAndHighlight(cardId) {
+        const card = document.getElementById(cardId);
+        if (card) {
+            document.querySelectorAll('.doctor-card.highlight').forEach(c => c.classList.remove('highlight'));
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            card.classList.add('highlight');
+            setTimeout(() => card.classList.remove('highlight'), 3000);
+        }
+    }
+
+    window.scrollToClinic = (clinicId) => {
+        const clinicSection = document.getElementById(`clinic-${clinicId}`);
+        if (clinicSection) {
+            clinicSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            console.error(`Clinic section with id 'clinic-${clinicId}' not found.`);
+        }
+    };
+    
+    const RECOMMEND_API = '/api/recommend';
+
+    const getRecommendationBtn = document.getElementById('get-recommendation-btn');
+    const symptomsInput = document.getElementById('symptoms-input');
+    const recommendationResultContainer = document.getElementById('recommendation-result-container');
+    const loader = document.getElementById('loader');
+    
+    getRecommendationBtn.addEventListener('click', async () => {
+        const symptomsText = symptomsInput.value.trim();
+        if (!symptomsText) {
+            alert('من فضلك، قم بوصف الأعراض التي تشعر بها.');
+            return;
+        }
+        loader.style.display = 'block';
+        recommendationResultContainer.innerHTML = '';
+        getRecommendationBtn.disabled = true;
+        try {
+            const response = await fetch(RECOMMEND_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ symptoms: symptomsText })
+            });
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({error: "حدث خطأ في الاتصال بالخادم."}));
+                throw new Error(errorData.error);
+            }
+            const data = await response.json();
+            if (data.recommendations && data.recommendations.length > 0) {
+                displayRecommendations(data.recommendations);
+            } else {
+                 displayFallback();
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            displayFallback(`عفواً، حدث خطأ تقني: ${error.message}`);
+        } finally {
+            loader.style.display = 'none';
+            getRecommendationBtn.disabled = false;
+        }
+    });
+    
+    function displayRecommendations(recommendations) {
+        recommendationResultContainer.innerHTML = '';
+        recommendations.forEach((rec, index) => {
+            const clinicInfo = clinicMap.get(rec.id);
+            if (!clinicInfo) return;
+            const isPrimary = index === 0;
+            const card = document.createElement('div');
+            card.className = `recommendation-card ${isPrimary ? 'primary-recommendation' : ''}`;
+            
+            const iconHtml = `<div class="icon"><div class="svg-icon" style="-webkit-mask-image: url(./icons/${clinicInfo.icon}); mask-image: url(./icons/${clinicInfo.icon});"></div></div>`;
+
+            card.innerHTML = `
+                <div class="recommendation-header">
+                    <div class="title-content">
+                        ${iconHtml}
+                        <h3>${clinicInfo.name}</h3>
+                    </div>
+                    ${isPrimary ? '<span class="recommendation-badge">الترشيح الأنسب</span>' : '<span class="recommendation-badge" style="background-color: #6c757d;">ترشيح بديل</span>'}
+                </div>
+                <p class="recommendation-reason">${rec.reason}</p>
+                <button class="go-to-btn" onclick="scrollToClinic('${rec.id}')">اذهب إلى عيادة ${clinicInfo.name} <i class="fa-solid fa-arrow-down"></i></button>
+            `;
+            recommendationResultContainer.appendChild(card);
+        });
+    }
+
+    function displayFallback(message = null) {
+        const fallbackMessage = message || 'لم نتمكن من تحديد تخصص دقيق. نقترح عليك التوجه لعيادة <strong>الباطنة العامة</strong> كنقطة بداية.';
+        const clinicInfo = clinicMap.get("باطنة-عامة");
+        
+        const iconHtml = `<div class="icon"><div class="svg-icon" style="-webkit-mask-image: url(./icons/${clinicInfo.icon}); mask-image: url(./icons/${clinicInfo.icon});"></div></div>`;
+
+        recommendationResultContainer.innerHTML = `
+            <div class="recommendation-card primary-recommendation">
+                 <div class="recommendation-header">
+                    <div class="title-content">
+                        ${iconHtml}
+                        <h3>الباطنة العامة</h3>
+                    </div>
+                    <span class="recommendation-badge">الترشيح المبدئي</span>
+                </div>
+                <p class="recommendation-reason">${fallbackMessage}</p>
+                <button class="go-to-btn" onclick="scrollToClinic('باطنة-عامة')">اذهب إلى عيادة الباطنة العامة <i class="fa-solid fa-arrow-down"></i></button>
+            </div>
+        `;
+    }
+});
+</script>
+
+</body>
+</html>
