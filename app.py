@@ -13,7 +13,6 @@ app = Flask(__name__, static_folder='static', static_url_path='')
 CORS(app)
 
 # --- متغيرات عالمية لتتبع حالة النموذج ---
-# يتم استخدام قفل لضمان الوصول الآمن للنموذج بين الـ threads
 model_lock = threading.Lock()
 model = None
 model_initialization_error = None
@@ -32,18 +31,20 @@ def initialize_vertex_ai():
     """
     global model, model_initialization_error
     try:
-        project_id = os.environ.get("GCP_PROJECT")
+        # --- التعديل النهائي ---
+        # سنبحث عن المتغير اليدوي أولاً، ثم نلجأ للمتغير التلقائي كخيار بديل
+        project_id = os.environ.get("PROJECT_ID") or os.environ.get("GCP_PROJECT")
         location = "us-central1"
 
         if not project_id:
-            raise ValueError("GCP_PROJECT environment variable not set.")
+            # الآن هذا الخطأ لن يحدث لأننا سنضيف المتغير يدوياً
+            raise ValueError("PROJECT_ID or GCP_PROJECT environment variable not set.")
 
-        print("Starting Vertex AI initialization...")
+        print(f"Starting Vertex AI initialization for project: {project_id}")
         vertexai.init(project=project_id, location=location)
 
         loaded_model = GenerativeModel("gemini-1.5-flash-001")
 
-        # تحديث المتغير العام للنموذج بأمان باستخدام القفل
         with model_lock:
             model = loaded_model
 
@@ -67,31 +68,23 @@ def serve_index():
 
 @app.route('/ready')
 def readiness_check():
-    """
-    نقطة فحص الجاهزية (Readiness Probe).
-    يستخدمها Cloud Run لمعرفة متى يكون التطبيق جاهزاً لاستقبال الطلبات.
-    """
+    """نقطة فحص الجاهزية (Readiness Probe)."""
     with model_lock:
         if model is not None:
-            # إذا تم تحميل النموذج بنجاح، يتم إرسال إشارة نجاح
             return "OK", 200
         elif model_initialization_error is not None:
-            # إذا فشل التحميل، يتم إرسال خطأ دائم
             return f"Initialization failed: {model_initialization_error}", 500
         else:
-            # إذا كان التحميل لا يزال جارياً، نطلب من Cloud Run الانتظار والمحاولة مرة أخرى
             return "Model is not ready yet.", 503
 
 @app.route("/api/recommend", methods=["POST"])
 def recommend_clinic():
     """تستقبل شكوى المريض وتقترح العيادة الأنسب."""
     with model_lock:
-        # التحقق من جاهزية النموذج قبل معالجة الطلب
         if model is None:
             error_message = f"AI model is not available. Error: {model_initialization_error}" if model_initialization_error else "AI model is still initializing."
-            return jsonify({"error": error_message}), 503 # 503 Service Unavailable
+            return jsonify({"error": error_message}), 503
 
-    # التحقق من أن الطلب يحتوي على بيانات JSON
     if not request.is_json:
         return jsonify({"error": "Invalid request: Content-Type must be application/json."}), 400
 
@@ -99,18 +92,15 @@ def recommend_clinic():
         data = request.get_json()
         symptoms = data.get('symptoms')
 
-        # التحقق من وجود نص الشكوى وأنه ليس فارغاً
         if not symptoms or not isinstance(symptoms, str) or len(symptoms.strip()) < 3:
             return jsonify({"error": "Symptoms must be provided as a non-empty string."}), 400
 
-        # إعدادات النموذج لضمان الحصول على رد بصيغة JSON
         generation_config = GenerationConfig(
             response_mime_type="application/json",
             temperature=0.7,
             max_output_tokens=1024,
         )
 
-        # النص الكامل والمفصل للنموذج (تم استعادته)
         prompt = f"""
         أنت مساعد طبي خبير في مستشفى. مهمتك هي تحليل شكوى المريض واقتراح أفضل عيادتين بحد أقصى من قائمة العيادات المتاحة.
         قائمة معرفات (IDs) العيادات المتاحة هي: [{CLINICS_STRING}]
@@ -130,15 +120,12 @@ def recommend_clinic():
         }}
         """
 
-        # إرسال الطلب إلى Vertex AI
         response = model.generate_content(prompt, generation_config=generation_config)
 
-        # التحقق من وجود محتوى في الرد
         if not response.text:
             print("ERROR: Gemini API returned an empty response.")
             return jsonify({"error": "The AI model returned an empty response."}), 500
 
-        # محاولة تحليل الرد كـ JSON
         try:
             json_response = json.loads(response.text)
             if "recommendations" not in json_response or not isinstance(json_response["recommendations"], list):
@@ -154,3 +141,4 @@ def recommend_clinic():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+
